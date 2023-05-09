@@ -15,7 +15,7 @@ def GetQuizInfo():
 	return {"size": 0, "scores": []}, 200
 
 @app.route('/login', methods=['POST'])
-def PostPassword():
+def PostLogin():
 	payload = request.get_json()
 	tried_password = payload['password'].encode('UTF-8')
 	hashed = hashlib.md5(tried_password).digest()
