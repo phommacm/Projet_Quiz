@@ -1,6 +1,9 @@
 from flask import Flask, request
 from flask_cors import CORS
+
 import hashlib
+
+from jwt_utils import build_token
 
 app = Flask(__name__)
 CORS(app)
@@ -21,7 +24,7 @@ def PostLogin():
 	hashed = hashlib.md5(tried_password).digest()
 
 	if(hashed==b'\xd8\x17\x06PG\x92\x93\xc1.\x02\x01\xe5\xfd\xf4_@'):
-		return {"token": "sampleToken"}, 200
+		return {"token": build_token()}, 200
 	else :
 		return "Unauthorized", 401
 
