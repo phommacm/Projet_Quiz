@@ -23,10 +23,11 @@ def PostLogin():
 	tried_password = payload['password'].encode('UTF-8')
 	hashed = hashlib.md5(tried_password).digest()
 
-	if(hashed==b'\xd8\x17\x06PG\x92\x93\xc1.\x02\x01\xe5\xfd\xf4_@'):
+	if (hashed == b'\xd8\x17\x06PG\x92\x93\xc1.\x02\x01\xe5\xfd\xf4_@'):
 		return {"token": build_token()}, 200
-	else :
+	else:
 		return "Unauthorized", 401
 
 if __name__ == "__main__":
     app.run()
+    
