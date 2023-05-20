@@ -4,7 +4,7 @@ from flask_cors import CORS
 
 import hashlib
 
-from jwt_utils import build_token
+from jwt_utils import build_token, decode_token, JwtError
 
 app = Flask(__name__)
 CORS(app)
@@ -39,6 +39,17 @@ def PostAddQuestion():
     # Récupération des données de la question envoyées dans le corps de la requête JSON
     question_data = request.get_json()
     
+    # Vérification de l'authentification
+    auth_header = request.headers.get('Authorization')
+    if (auth_header != None):
+        auth_token = auth_header.split(" ")[1]
+        try:
+            user_id = decode_token(auth_token)
+        except JwtError:
+            return "Unauthorized", 401
+    else:
+        return "Unauthorized", 401
+
 	# Insertion de la question dans la base de données
     conn = sqlite3.connect('./quiz-questions.db')
     cursor = conn.cursor()
