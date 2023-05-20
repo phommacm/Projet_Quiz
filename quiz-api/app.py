@@ -1,3 +1,4 @@
+import sqlite3
 from flask import Flask, request
 from flask_cors import CORS
 
@@ -28,6 +29,20 @@ def PostLogin():
 	else:
 		return "Unauthorized", 401
 
-if __name__ == "__main__":
+@app.route('/questions', methods=['POST'])
+def PostAddQuestion():
+    question_data = request.get_json()
+    
+    conn = sqlite3.connect('./quiz-questions.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)",
+                   (question_data['position'], question_data['title'], question_data['text'], question_data['image']))
+    question_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+
+    return {"question_id": question_id}, 200
+
+if __name__ == "__main__":	
     app.run()
     
