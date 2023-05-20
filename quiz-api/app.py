@@ -45,6 +45,10 @@ def PostAddQuestion():
         auth_token = auth_header.split(" ")[1]
         try:
             user_id = decode_token(auth_token)
+            if user_id == 'quiz-app-admin':
+                pass
+            else:
+                return "Unauthorized", 401
         except JwtError:
             return "Unauthorized", 401
     else:
