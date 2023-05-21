@@ -1,5 +1,8 @@
+import json
 import sqlite3
+
 from flask import request
+
 from jwt_utils import decode_token
 from jwt_utils import JwtError
 
@@ -9,6 +12,26 @@ class Question:
         self.title = title
         self.text = text
         self.image = image
+
+    def serialize(self):
+        question_dict = {
+            "position": self.position,
+            "title": self.title,
+            "text": self.text,
+            "image": self.image
+        }
+
+        return json.dumps(question_dict)
+
+    def deserialize(json_data):
+        question_dict = json.loads(json_data)
+
+        position = question_dict.get("position")
+        title = question_dict.get("title")
+        text = question_dict.get("text")
+        image = question_dict.get("image")
+
+        return Question(position, title, text, image)
 
 def add_question():
     # Récupération des données de la question envoyées dans le corps de la requête JSON
