@@ -7,18 +7,20 @@ from jwt_utils import decode_token
 from jwt_utils import JwtError
 
 class Question:
-    def __init__(self, position: int, title: str, text: str, image: str):
+    def __init__(self, position: int, title: str, text: str, image: str, answers: list):
         self.position = position
         self.title = title
         self.text = text
         self.image = image
+        self.answers = answers
 
     def serialize(self):
         question_dict = {
             "position": self.position,
             "title": self.title,
             "text": self.text,
-            "image": self.image
+            "image": self.image,
+            "answers": self.answers
         }
 
         return json.dumps(question_dict)
@@ -30,12 +32,19 @@ class Question:
         title = question_dict.get("title")
         text = question_dict.get("text")
         image = question_dict.get("image")
+        answers = question_dict.get("answers")
 
-        return Question(position, title, text, image)
+        return Question(position, title, text, image, answers)
 
-def generate_insert_query(question):
+def generate_insert_questions_query(question):
     query = "INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)"
     params = (question.position, question.title, question.text, question.image)
+
+    return query, params
+
+def generate_insert_answers_query(question_id, answers):
+    query = "INSERT INTO quiz_answers (question_id, text, is_correct) VALUES (?, ?, ?)"
+    params = [(question_id, answer["text"], answer["isCorrect"]) for answer in answers]
 
     return query, params
 
@@ -65,10 +74,11 @@ def add_question():
         return "Unauthorized", 401
 
     # Création d'une instance de la classe Question avec les données de la question
-    question = Question(question_data['position'], question_data['title'], question_data['text'], question_data['image'])
+    question = Question(question_data['position'], question_data['title'], question_data['text'], question_data['image'],
+                        question_data['possibleAnswers'])
 
-    # Génération de la requête SQL insert
-    insert_query, params = generate_insert_query(question)
+    # Génération de la requête SQL insert pour la question
+    insert_query, params = generate_insert_questions_query(question)
 
     # Insertion de la question dans la base de données
     conn = sqlite3.connect('./quiz-questions.db')
@@ -77,7 +87,13 @@ def add_question():
     
     # Récupération de l'identifiant de la question que l'on vient d'insérer
     question_id = cursor.lastrowid
-    
+
+    # Génération de la requête SQL insert pour les réponses possibles
+    insert_answers_query, answers_params = generate_insert_answers_query(question_id, question.answers)
+
+    # Insertion des réponses possibles dans la base de données
+    cursor.executemany(insert_answers_query, answers_params)
+
     conn.commit()
     conn.close()
 
