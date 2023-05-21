@@ -35,6 +35,36 @@ class Question:
         answers = question_dict.get("answers")
 
         return Question(position, title, text, image, answers)
+    
+    def get_question_by_id(question_id):
+        conn = sqlite3.connect('./quiz-questions.db')
+        cursor = conn.cursor()
+
+        query = "SELECT * FROM quiz_questions WHERE question_id = ?"
+        cursor.execute(query, (question_id,))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        if result:
+            return generate_question_object(result)
+        else:
+            return None
+
+    def get_question_by_position(position):
+        conn = sqlite3.connect('./quiz-questions.db')
+        cursor = conn.cursor()
+
+        query = "SELECT * FROM quiz_questions WHERE position = ?"
+        cursor.execute(query, (position,))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        if result:
+            return generate_question_object(result)
+        else:
+            return None
 
 def generate_insert_questions_query(question):
     query = "INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)"
