@@ -33,6 +33,17 @@ class Question:
 
         return Question(position, title, text, image)
 
+def generate_insert_query(question):
+    query = "INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)"
+    params = (question.position, question.title, question.text, question.image)
+
+    return query, params
+
+def generate_question_object(result):
+    position, title, text, image = result
+
+    return Question(position, title, text, image)
+
 def add_question():
     # Récupération des données de la question envoyées dans le corps de la requête JSON
     question_data = request.get_json()
@@ -45,9 +56,7 @@ def add_question():
         
         try:
             user_id = decode_token(auth_token)
-            if user_id == 'quiz-app-admin':
-                pass
-            else:
+            if user_id != 'quiz-app-admin':
                 return "Unauthorized", 401
         except JwtError:
             return "Unauthorized", 401
@@ -58,11 +67,13 @@ def add_question():
     # Création d'une instance de la classe Question avec les données de la question
     question = Question(question_data['position'], question_data['title'], question_data['text'], question_data['image'])
 
+    # Génération de la requête SQL insert
+    insert_query, params = generate_insert_query(question)
+
     # Insertion de la question dans la base de données
     conn = sqlite3.connect('./quiz-questions.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)",
-                   (question.position, question.title, question.text, question.image))
+    cursor.execute(insert_query, params)
     
     # Récupération de l'identifiant de la question que l'on vient d'insérer
     question_id = cursor.lastrowid
