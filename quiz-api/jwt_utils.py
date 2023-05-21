@@ -4,7 +4,8 @@ from werkzeug.exceptions import Unauthorized
 
 
 class JwtError(Exception):
-    """Exception raised for jwt errors in the quiz app 
+    """
+    Exception raised for jwt errors in the quiz app 
     """
 
     def __init__(self, message="Jwt error"):
