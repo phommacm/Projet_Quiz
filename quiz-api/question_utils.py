@@ -8,12 +8,12 @@ from flask import request
 ################################################################################
 
 class Question:
-    def __init__(self, position: int, title: str, text: str, image: str, answers: list):
+    def __init__(self, position: int, title: str, text: str, image: str, possibleAnswers: list):
         self.position = position
         self.title = title
         self.text = text
         self.image = image
-        self.answers = answers
+        self.possibleAnswers = possibleAnswers
 
     def serialize(self):
         question_dict = {
@@ -21,7 +21,7 @@ class Question:
             "title": self.title,
             "text": self.text,
             "image": self.image,
-            "answers": self.answers
+            "possibleAnswers": self.possibleAnswers
         }
 
         return json.dumps(question_dict)
@@ -33,10 +33,23 @@ class Question:
         title = question_dict.get("title")
         text = question_dict.get("text")
         image = question_dict.get("image")
-        answers = question_dict.get("answers")
+        possibleAnswers = question_dict.get("possibleAnswers")
 
-        return Question(position, title, text, image, answers)
+        return Question(position, title, text, image, possibleAnswers)
     
+    def get_answers_by_question_id(question_id):
+        conn = sqlite3.connect('./quiz-questions.db')
+        cursor = conn.cursor()
+
+        query = "SELECT text, is_correct FROM quiz_answers WHERE question_id = ?"
+        cursor.execute(query, (question_id,))
+        results = cursor.fetchall()
+
+        conn.close()
+
+        answers = [{"text": row[0], "isCorrect": bool(row[1])} for row in results]
+        return answers
+
     def get_question_by_id(question_id):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -77,16 +90,18 @@ def generate_insert_questions_query(question):
 
     return query, params
 
-def generate_insert_answers_query(question_id, answers):
+def generate_insert_answers_query(question_id, possibleAnswers):
     query = "INSERT INTO quiz_answers (question_id, text, is_correct) VALUES (?, ?, ?)"
-    params = [(question_id, answer["text"], answer["isCorrect"]) for answer in answers]
+    params = [(question_id, answer["text"], answer["isCorrect"]) for answer in possibleAnswers]
 
     return query, params
 
 def generate_question_object(result):
     question_id, position, title, text, image = result
 
-    return Question(question_id, position, title, text, image)
+    possibleAnswers = Question.get_answers_by_question_id(question_id)
+
+    return Question(position, title, text, image, possibleAnswers)
 
 ################################################################################
 #                                INSERTION                                     #
@@ -112,7 +127,7 @@ def add_question():
     question_id = cursor.lastrowid
 
     # Génération de la requête SQL insert pour les réponses possibles
-    insert_answers_query, answers_params = generate_insert_answers_query(question_id, question.answers)
+    insert_answers_query, answers_params = generate_insert_answers_query(question_id, question.possibleAnswers)
 
     # Insertion des réponses possibles dans la base de données
     cursor.executemany(insert_answers_query, answers_params)
@@ -157,14 +172,24 @@ def del_question_by_id(question_id):
         cursor.execute(delete_answers_query, (question_id,))
 
         # Décalage de la position des questions après la suppression
-        cursor.execute(
-        "UPDATE quiz_questions SET position = position + ? WHERE position >= ?",
-        (-1, question.position),
-        )
+        shift_position_query = "UPDATE quiz_questions SET position = position - 1 WHERE position > ?"
+        cursor.execute(shift_position_query, (question.position,))
 
         conn.commit()
         conn.close()
 
         return "Question deleted", 204
+    else:
+        return "Question not found", 404
+
+################################################################################
+#                                 LECTURE                                      #
+################################################################################
+
+def get_question(question_id):
+    question = Question.get_question_by_id(question_id)
+
+    if question:
+        return question.serialize(), 200
     else:
         return "Question not found", 404
