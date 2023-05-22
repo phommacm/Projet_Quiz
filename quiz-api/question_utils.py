@@ -186,8 +186,16 @@ def del_question_by_id(question_id):
 #                                 LECTURE                                      #
 ################################################################################
 
-def get_question(question_id):
+def read_question_by_id(question_id):
     question = Question.get_question_by_id(question_id)
+
+    if question:
+        return question.serialize(), 200
+    else:
+        return "Question not found", 404
+    
+def read_question_by_position(position):
+    question = Question.get_question_by_position(position)
 
     if question:
         return question.serialize(), 200

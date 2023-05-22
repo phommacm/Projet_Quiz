@@ -5,7 +5,7 @@ import hashlib
 
 from auth_utils import authenticate
 from jwt_utils import build_token
-from question_utils import add_question, del_all_questions, del_question_by_id, get_question
+from question_utils import add_question, del_all_questions, del_question_by_id, read_question_by_id, read_question_by_position
 
 app = Flask(__name__)
 CORS(app)
@@ -83,8 +83,13 @@ def DeleteQuestion(question_id):
 ################################################################################
 
 @app.route('/questions/<question_id>', methods=['GET'])
-def GetQuestion(question_id):  
-	return get_question(question_id)
+def GetQuestionByID(question_id):  
+	return read_question_by_id(question_id)
+
+@app.route('/questions', methods=['GET'])
+def GetQuestionByPosition():
+    position = int(request.args.get('position'))
+    return read_question_by_position(position)
 
 ################################################################################
 #                                   RUN                                        #
