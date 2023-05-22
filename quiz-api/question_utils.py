@@ -76,9 +76,9 @@ def generate_insert_answers_query(question_id, answers):
     return query, params
 
 def generate_question_object(result):
-    position, title, text, image = result
+    question_id, position, title, text, image = result
 
-    return Question(position, title, text, image)
+    return Question(question_id, position, title, text, image)
 
 def add_question():
     # Récupération des données de la question envoyées dans le corps de la requête JSON
@@ -116,11 +116,39 @@ def del_all_questions():
 
     delete_questions_query = "DELETE FROM quiz_questions"
     delete_answers_query = "DELETE FROM quiz_answers"
+    delete_sequence_query = "DELETE FROM sqlite_sequence"
 
     cursor.execute(delete_answers_query)
     cursor.execute(delete_questions_query)
+    cursor.execute(delete_sequence_query)
 
     conn.commit()
     conn.close()
 
-    return "", 204
+    return "Deleted all questions", 204
+
+def del_question_by_id(question_id):
+    question = Question.get_question_by_id(question_id)
+
+    if question:
+        conn = sqlite3.connect('./quiz-questions.db')
+        cursor = conn.cursor()
+
+        delete_question_query = "DELETE FROM quiz_questions WHERE question_id = ?"
+        cursor.execute(delete_question_query, (question_id,))
+
+        delete_answers_query = "DELETE FROM quiz_answers WHERE question_id = ?"
+        cursor.execute(delete_answers_query, (question_id,))
+
+        # Décalage de la position des questions après la suppression
+        cursor.execute(
+        "UPDATE quiz_questions SET position = position + ? WHERE position >= ?",
+        (-1, question.position),
+        )
+
+        conn.commit()
+        conn.close()
+
+        return "Question deleted", 204
+    else:
+        return "Question not found", 404

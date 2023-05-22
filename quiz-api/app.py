@@ -5,7 +5,7 @@ import hashlib
 
 from auth_utils import authenticate
 from jwt_utils import build_token
-from question_utils import add_question, del_all_questions
+from question_utils import add_question, del_all_questions, del_question_by_id
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +45,7 @@ def PostAddQuestion():
     
     return add_question()
 
+
 # Endpoint pour supprimer toutes les questions
 @app.route('/questions/all', methods=['DELETE'])
 def DeleteAllQuestions():
@@ -55,6 +56,16 @@ def DeleteAllQuestions():
 		return auth
 	
 	return del_all_questions()
+
+@app.route('/questions/<question_id>', methods=['DELETE'])
+def delete_question(question_id):  
+    # Vérification de l'authentification
+	auth = authenticate()
+
+	if isinstance(auth, tuple):
+		return auth
+	  
+	return del_question_by_id(question_id)
 
 if __name__ == "__main__":	
     app.run()
