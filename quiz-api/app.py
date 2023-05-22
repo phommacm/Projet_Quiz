@@ -3,8 +3,9 @@ from flask_cors import CORS
 
 import hashlib
 
+from auth_utils import authenticate
 from jwt_utils import build_token
-from question_utils import add_question
+from question_utils import add_question, del_all_questions
 
 app = Flask(__name__)
 CORS(app)
@@ -36,7 +37,24 @@ def PostLogin():
 # Endpoint pour ajouter une question
 @app.route('/questions', methods=['POST'])
 def PostAddQuestion():
+    # Vérification de l'authentification
+    auth = authenticate()
+    
+    if isinstance(auth, tuple):
+        return auth
+    
     return add_question()
+
+# Endpoint pour supprimer toutes les questions
+@app.route('/questions/all', methods=['DELETE'])
+def DeleteAllQuestions():
+    # Vérification de l'authentification
+	auth = authenticate()
+
+	if isinstance(auth, tuple):
+		return auth
+	
+	return del_all_questions()
 
 if __name__ == "__main__":	
     app.run()
