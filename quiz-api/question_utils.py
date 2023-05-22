@@ -3,6 +3,10 @@ import sqlite3
 
 from flask import request
 
+################################################################################
+#                                 CLASSE                                       #
+################################################################################
+
 class Question:
     def __init__(self, position: int, title: str, text: str, image: str, answers: list):
         self.position = position
@@ -62,6 +66,10 @@ class Question:
             return generate_question_object(result)
         else:
             return None
+        
+################################################################################
+#                                GENERATION                                    #
+################################################################################
 
 def generate_insert_questions_query(question):
     query = "INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)"
@@ -79,6 +87,10 @@ def generate_question_object(result):
     question_id, position, title, text, image = result
 
     return Question(question_id, position, title, text, image)
+
+################################################################################
+#                                INSERTION                                     #
+################################################################################
 
 def add_question():
     # Récupération des données de la question envoyées dans le corps de la requête JSON
@@ -109,6 +121,10 @@ def add_question():
     conn.close()
 
     return {"question_id": question_id}, 200
+
+################################################################################
+#                               SUPPRESSION                                    #
+################################################################################
 
 def del_all_questions():
     conn = sqlite3.connect('./quiz-questions.db')

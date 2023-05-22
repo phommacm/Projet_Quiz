@@ -21,6 +21,10 @@ def hello_world():
 def GetQuizInfo():
 	return {"size": 0, "scores": []}, 200
 
+################################################################################
+#                             AUTHENTIFICATION                                 #
+################################################################################
+
 # Endpoint pour gérer la connexion
 @app.route('/login', methods=['POST'])
 def PostLogin():
@@ -34,6 +38,10 @@ def PostLogin():
 	else:
 		return "Unauthorized", 401
 
+################################################################################
+#                                INSERTION                                     #
+################################################################################
+
 # Endpoint pour ajouter une question
 @app.route('/questions', methods=['POST'])
 def PostAddQuestion():
@@ -45,6 +53,9 @@ def PostAddQuestion():
     
     return add_question()
 
+################################################################################
+#                               SUPPRESSION                                    #
+################################################################################
 
 # Endpoint pour supprimer toutes les questions
 @app.route('/questions/all', methods=['DELETE'])
@@ -58,7 +69,7 @@ def DeleteAllQuestions():
 	return del_all_questions()
 
 @app.route('/questions/<question_id>', methods=['DELETE'])
-def delete_question(question_id):  
+def DeleteQuestion(question_id):  
     # Vérification de l'authentification
 	auth = authenticate()
 
