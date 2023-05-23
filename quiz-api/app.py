@@ -5,7 +5,7 @@ import hashlib
 
 from auth_utils import authenticate
 from jwt_utils import build_token
-from question_utils import add_question, del_all_questions, del_question_by_id, read_question_by_id, read_question_by_position
+from question_utils import add_question, del_all_questions, del_question_by_id, read_question_by_id, read_question_by_position, update_question
 
 app = Flask(__name__)
 CORS(app)
@@ -90,6 +90,14 @@ def GetQuestionByID(question_id):
 def GetQuestionByPosition():
     position = int(request.args.get('position'))
     return read_question_by_position(position)
+
+################################################################################
+#                                  UPDATE                                      #
+################################################################################
+
+@app.route('/questions/<question_id>', methods=['PUT'])
+def PutQuestion(question_id):
+    return update_question(question_id)
 
 ################################################################################
 #                                   RUN                                        #

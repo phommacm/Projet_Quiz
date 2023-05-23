@@ -135,7 +135,7 @@ def add_question():
     conn.commit()
     conn.close()
 
-    return {"question_id": question_id}, 200
+    return {"id": question_id}, 200
 
 ################################################################################
 #                               SUPPRESSION                                    #
@@ -201,3 +201,46 @@ def read_question_by_position(position):
         return question.serialize(), 200
     else:
         return "Question not found", 404
+    
+################################################################################
+#                                  UPDATE                                      #
+################################################################################
+
+def update_question(question_id):
+    # Récupération des données de la question envoyées dans le corps de la requête JSON
+    question_data = request.get_json()
+
+    # Vérification de l'existence de la question
+    question = Question.get_question_by_id(question_id)
+    if not question:
+        return "Question not found", 404
+
+    conn = sqlite3.connect('./quiz-questions.db')
+    cursor = conn.cursor()
+
+    # Mise à jour des attributs de la question avec les nouvelles données
+    question.text = question_data.get('text', question.text)
+    question.title = question_data.get('title', question.title)
+    question.image = question_data.get('image', question.image)
+
+    update_question_query = "UPDATE quiz_questions SET text = ?, title = ?, image = ? WHERE question_id = ?"
+    update_params = (question.text, question.title, question.image, question_id)
+    cursor.execute(update_question_query, update_params)
+
+    # Suppression des réponses existantes de la question
+    delete_query = "DELETE FROM quiz_answers WHERE question_id = ?"
+    cursor.execute(delete_query, (question_id,))
+
+    # Mise à jour des nouvelles réponses à la question
+    new_possible_answers = question_data.get('possibleAnswers', question.possibleAnswers)
+    for answer_data in new_possible_answers:
+        text = answer_data.get('text', '')
+        is_correct = answer_data.get('isCorrect', False)
+
+        update_answer_query = "INSERT INTO quiz_answers (question_id, text, is_correct) VALUES (?, ?, ?)"
+        cursor.execute(update_answer_query, (question_id, text, is_correct))
+
+    conn.commit()
+    conn.close()
+
+    return "Question updated", 204
