@@ -15,6 +15,7 @@ class Question:
         self.image = image
         self.possibleAnswers = possibleAnswers
 
+    # Sérialisation Objet Question -> Données JSON
     def serialize(self):
         question_dict = {
             "position": self.position,
@@ -26,6 +27,7 @@ class Question:
 
         return json.dumps(question_dict)
 
+    # Désérialisation Données JSON -> Objet Question
     def deserialize(json_data):
         question_dict = json.loads(json_data)
 
@@ -37,6 +39,7 @@ class Question:
 
         return Question(position, title, text, image, possibleAnswers)
     
+    # Answers Getter via l'ID de la question 
     def get_answers_by_question_id(question_id):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -50,6 +53,7 @@ class Question:
         answers = [{"text": row[0], "isCorrect": bool(row[1])} for row in results]
         return answers
 
+    # Question Getter via l'ID de la question
     def get_question_by_id(question_id):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -65,6 +69,7 @@ class Question:
         else:
             return None
 
+    # Question Getter via la position de la question
     def get_question_by_position(position):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -110,6 +115,7 @@ def generate_question_object(result):
 #                                INSERTION                                     #
 ################################################################################
 
+# Insertion d'une question dans la base de données (prise en compte de la position)
 def add_question():
     # Récupération des données de la question envoyées dans le corps de la requête JSON
     question_data = request.get_json()
@@ -120,6 +126,7 @@ def add_question():
 
     # Vérification de l'existence d'une question à la même position
     existing_question = Question.get_question_by_position(question.position)
+    
     if existing_question:
         # Décalage des positions des questions existantes après la position actuelle
         conn = sqlite3.connect('./quiz-questions.db')
@@ -155,6 +162,7 @@ def add_question():
 #                               SUPPRESSION                                    #
 ################################################################################
 
+# Suppression de toutes les questions de la base de données
 def del_all_questions():
     conn = sqlite3.connect('./quiz-questions.db')
     cursor = conn.cursor()
@@ -172,6 +180,7 @@ def del_all_questions():
 
     return "Deleted all questions", 204
 
+# Suppression d'une question de la base de donnée selon son ID
 def del_question_by_id(question_id):
     question = Question.get_question_by_id(question_id)
 
@@ -200,6 +209,7 @@ def del_question_by_id(question_id):
 #                                 LECTURE                                      #
 ################################################################################
 
+# Lecture d'une question via son ID
 def read_question_by_id(question_id):
     question = Question.get_question_by_id(question_id)
 
@@ -208,6 +218,7 @@ def read_question_by_id(question_id):
     else:
         return "Question not found", 404
     
+# Lecture d'une question via sa position
 def read_question_by_position(position):
     question = Question.get_question_by_position(position)
 
@@ -220,6 +231,7 @@ def read_question_by_position(position):
 #                                  UPDATE                                      #
 ################################################################################
 
+# Mise à jour d'une question
 def update_question(question_id):
     # Récupération des données de la question envoyées dans le corps de la requête JSON
     question_data = request.get_json()
