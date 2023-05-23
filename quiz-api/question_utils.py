@@ -84,18 +84,21 @@ class Question:
 #                                GENERATION                                    #
 ################################################################################
 
+# Génération de la requête SQL et des paramètres pour insérer une question dans la table quiz_questions
 def generate_insert_questions_query(question):
     query = "INSERT INTO quiz_questions (position, title, text, image) VALUES (?, ?, ?, ?)"
     params = (question.position, question.title, question.text, question.image)
 
     return query, params
 
+# Génération de la requête SQL et des paramètres pour insérer les réponses possibles d'une question dans la table quiz_answers
 def generate_insert_answers_query(question_id, possibleAnswers):
     query = "INSERT INTO quiz_answers (question_id, text, is_correct) VALUES (?, ?, ?)"
     params = [(question_id, answer["text"], answer["isCorrect"]) for answer in possibleAnswers]
 
     return query, params
 
+# Génération d'un objet Question à partir des données de la base de données
 def generate_question_object(result):
     question_id, position, title, text, image = result
 
