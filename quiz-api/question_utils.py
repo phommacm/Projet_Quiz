@@ -231,7 +231,7 @@ def update_question(question_id):
     delete_query = "DELETE FROM quiz_answers WHERE question_id = ?"
     cursor.execute(delete_query, (question_id,))
 
-    # Mise à jour des nouvelles réponses à la question
+    # Mise à jour des nouvelles réponses de la question
     new_possible_answers = question_data.get('possibleAnswers', question.possibleAnswers)
     for answer_data in new_possible_answers:
         text = answer_data.get('text', '')
