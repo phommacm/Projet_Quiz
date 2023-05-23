@@ -115,6 +115,17 @@ def add_question():
     question = Question(question_data['position'], question_data['title'], question_data['text'], question_data['image'],
                         question_data['possibleAnswers'])
 
+    # Vérification de l'existence d'une question à la même position
+    existing_question = Question.get_question_by_position(question.position)
+    if existing_question:
+        # Décalage des positions des questions existantes après la position actuelle
+        conn = sqlite3.connect('./quiz-questions.db')
+        cursor = conn.cursor()
+        shift_position_query = "UPDATE quiz_questions SET position = position + 1 WHERE position >= ?"
+        cursor.execute(shift_position_query, (question.position,))
+        conn.commit()
+        conn.close()
+
     # Génération de la requête SQL insert pour la question
     insert_query, params = generate_insert_questions_query(question)
 
