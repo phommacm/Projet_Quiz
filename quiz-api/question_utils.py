@@ -358,10 +358,4 @@ def add_participation():
     conn.commit()
     conn.close()
 
-    # Construction de l'objet JSON à renvoyer en réponse
-    result = {
-        "playerName": player_name,
-        "score": score
-    }
-
-    return result, 200
+    return {"playerName": player_name, "score": score}, 200
