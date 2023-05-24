@@ -251,8 +251,10 @@ def del_all_participations():
     cursor = conn.cursor()
 
     delete_participations_query = "DELETE FROM quiz_participations"
+    delete_sequence_query = "DELETE FROM sqlite_sequence WHERE name = 'quiz_participations'"
 
     cursor.execute(delete_participations_query)
+    cursor.execute(delete_sequence_query)
 
     conn.commit()
     conn.close()
