@@ -5,6 +5,7 @@ import hashlib
 
 from auth_utils import authenticate
 from jwt_utils import build_token
+from db_utils import generate_database
 from question_utils import add_participation, add_question, del_all_participations, del_all_questions, del_question_by_id, get_question_count, get_scores, read_question_by_id, read_question_by_position, update_question
 
 app = Flask(__name__)
@@ -129,12 +130,23 @@ def PutQuestion(question_id):
 
 # Endpoint pour ajouter une participation
 @app.route('/participations', methods=['POST'])
-def participation():
+def PostParticipation():
     return add_participation()
 
 ################################################################################
 #                                   RUN                                        #
 ################################################################################
+
+# Endpoint pour recréer la base de données
+@app.route('/rebuild-db', methods=['POST'])
+def PostRebuildDB():
+    # Vérification de l'authentification
+	auth = authenticate()
+
+	if isinstance(auth, tuple):
+		return auth
+	
+	return generate_database()
 
 if __name__ == "__main__":	
     app.run()
