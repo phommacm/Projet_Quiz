@@ -71,6 +71,7 @@ def DeleteAllQuestions():
 	
 	return del_all_questions()
 
+# Endpoint pour supprimer une question selon son ID
 @app.route('/questions/<question_id>', methods=['DELETE'])
 def DeleteQuestion(question_id):  
     # Vérification de l'authentification
@@ -96,10 +97,12 @@ def DeleteAllParticipations():
 #                                 LECTURE                                      #
 ################################################################################
 
+# Endpoint pour lire une question selon son ID
 @app.route('/questions/<question_id>', methods=['GET'])
 def GetQuestionByID(question_id):  
 	return read_question_by_id(question_id)
 
+# ENdpoint pour lire une question selon sa position
 @app.route('/questions', methods=['GET'])
 def GetQuestionByPosition():
     position = int(request.args.get('position'))
@@ -109,6 +112,7 @@ def GetQuestionByPosition():
 #                                  UPDATE                                      #
 ################################################################################
 
+# Endpoint pour mettre à jour une question
 @app.route('/questions/<question_id>', methods=['PUT'])
 def PutQuestion(question_id):
     # Vérification de l'authentification
