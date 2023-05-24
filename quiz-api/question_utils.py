@@ -39,7 +39,7 @@ class Question:
 
         return Question(position, title, text, image, possibleAnswers)
     
-    # Answers Getter via l'ID de la question 
+    # Getter - Retourne les réponses via l'ID de la question 
     def get_answers_by_question_id(question_id):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -53,7 +53,7 @@ class Question:
         answers = [{"text": row[0], "isCorrect": bool(row[1])} for row in results]
         return answers
 
-    # Question Getter via l'ID de la question
+    # Getter - Retourne la question via l'ID
     def get_question_by_id(question_id):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -69,7 +69,7 @@ class Question:
         else:
             return None
 
-    # Question Getter via la position de la question
+    # Getter - Retourne la question via la position
     def get_question_by_position(position):
         conn = sqlite3.connect('./quiz-questions.db')
         cursor = conn.cursor()
@@ -110,6 +110,22 @@ def generate_question_object(result):
     possibleAnswers = Question.get_answers_by_question_id(question_id)
 
     return Question(position, title, text, image, possibleAnswers)
+
+################################################################################
+#                                  GETTER                                      #
+################################################################################
+
+# Getter - Retourne le nombre de question dans la base de données
+def get_question_count():
+    conn = sqlite3.connect('./quiz-questions.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM quiz_questions")
+    size = cursor.fetchone()[0]
+
+    conn.close()
+
+    return size
 
 ################################################################################
 #                                INSERTION                                     #

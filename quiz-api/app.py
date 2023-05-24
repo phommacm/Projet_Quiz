@@ -5,7 +5,7 @@ import hashlib
 
 from auth_utils import authenticate
 from jwt_utils import build_token
-from question_utils import add_question, del_all_questions, del_question_by_id, read_question_by_id, read_question_by_position, update_question
+from question_utils import add_question, del_all_questions, del_question_by_id, get_question_count, read_question_by_id, read_question_by_position, update_question
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +19,9 @@ def hello_world():
 # Endpoint pour obtenir des informations sur le quiz
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
-	return {"size": 0, "scores": []}, 200
+    size = get_question_count()
+
+    return {"size": size, "scores": []}, 200
 
 ################################################################################
 #                             AUTHENTIFICATION                                 #
