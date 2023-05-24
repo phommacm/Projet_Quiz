@@ -127,6 +127,30 @@ def get_question_count():
 
     return size
 
+# Getter - Retourne les scores dans la base de données
+def get_scores():
+    conn = sqlite3.connect('./quiz-questions.db')
+    cursor = conn.cursor()
+
+    select_query = "SELECT player_name, score FROM quiz_participations ORDER BY score DESC"
+    cursor.execute(select_query)
+    rows = cursor.fetchall()
+
+    scores = []
+    for row in rows:
+        player_name = row[0]
+        score = row[1]
+
+        score_entry = {
+            "playerName": player_name,
+            "score": score
+        }
+        scores.append(score_entry)
+
+    conn.close()
+
+    return scores
+
 ################################################################################
 #                                INSERTION                                     #
 ################################################################################
