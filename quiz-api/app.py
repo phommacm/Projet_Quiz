@@ -97,7 +97,13 @@ def GetQuestionByPosition():
 
 @app.route('/questions/<question_id>', methods=['PUT'])
 def PutQuestion(question_id):
-    return update_question(question_id)
+    # Vérification de l'authentification
+	auth = authenticate()
+
+	if isinstance(auth, tuple):
+		return auth
+	
+	return update_question(question_id)
 
 ################################################################################
 #                                   RUN                                        #

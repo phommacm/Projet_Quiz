@@ -266,6 +266,28 @@ def update_question(question_id):
         update_answer_query = "INSERT INTO quiz_answers (question_id, text, is_correct) VALUES (?, ?, ?)"
         cursor.execute(update_answer_query, (question_id, text, is_correct))
 
+    # Récupération de la position de destination à partir des données JSON
+    destination_position = question_data.get('position')
+    if destination_position is not None:
+        # Vérification si une question existe déjà à la position de destination
+        existing_question = Question.get_question_by_position(destination_position)
+
+        # Si une question existe déjà à la position de destination,
+        # il faut décaler toutes les questions entre la position actuelle et la position de destination
+        if existing_question and destination_position != question.position:
+            if destination_position > question.position:
+                # Décalage des questions vers le bas (positions supérieures)
+                shift_down_query = "UPDATE quiz_questions SET position = position - 1 WHERE position > ? AND position <= ?"
+                cursor.execute(shift_down_query, (question.position, destination_position))
+            else:
+                # Décalage des questions vers le haut (positions inférieures)
+                shift_up_query = "UPDATE quiz_questions SET position = position + 1 WHERE position < ? AND position >= ?"
+                cursor.execute(shift_up_query, (question.position, destination_position))
+
+            # Décalage de la question actuelle vers la position de destination
+            update_position_query = "UPDATE quiz_questions SET position = ? WHERE question_id = ?"
+            cursor.execute(update_position_query, (destination_position, question_id))
+
     conn.commit()
     conn.close()
 
