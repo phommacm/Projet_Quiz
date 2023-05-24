@@ -5,7 +5,7 @@ import hashlib
 
 from auth_utils import authenticate
 from jwt_utils import build_token
-from question_utils import add_question, del_all_questions, del_question_by_id, get_question_count, read_question_by_id, read_question_by_position, update_question
+from question_utils import add_participation, add_question, del_all_participations, del_all_questions, del_question_by_id, get_question_count, read_question_by_id, read_question_by_position, update_question
 
 app = Flask(__name__)
 CORS(app)
@@ -80,6 +80,17 @@ def DeleteQuestion(question_id):
 	  
 	return del_question_by_id(question_id)
 
+# Endpoint pour supprimer toutes les participations
+@app.route('/participations/all', methods=['DELETE'])
+def DeleteAllParticipations():
+    # Vérification de l'authentification
+	auth = authenticate()
+
+	if isinstance(auth, tuple):
+		return auth
+	
+	return del_all_participations()
+
 ################################################################################
 #                                 LECTURE                                      #
 ################################################################################
@@ -106,6 +117,15 @@ def PutQuestion(question_id):
 		return auth
 	
 	return update_question(question_id)
+
+################################################################################
+#                               PARTICIPATION                                  #
+################################################################################
+
+# Endpoint pour ajouter une participation
+@app.route('/participations', methods=['POST'])
+def participation():
+    return add_participation()
 
 ################################################################################
 #                                   RUN                                        #

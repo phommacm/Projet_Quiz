@@ -221,6 +221,20 @@ def del_question_by_id(question_id):
     else:
         return "Question not found", 404
 
+# Suppression de toutes les participations de la base de données
+def del_all_participations():
+    conn = sqlite3.connect('./quiz-questions.db')
+    cursor = conn.cursor()
+
+    delete_participations_query = "DELETE FROM quiz_participations"
+
+    cursor.execute(delete_participations_query)
+
+    conn.commit()
+    conn.close()
+
+    return "Deleted all participations", 204
+
 ################################################################################
 #                                 LECTURE                                      #
 ################################################################################
@@ -308,3 +322,46 @@ def update_question(question_id):
     conn.close()
 
     return "Question updated", 204
+
+################################################################################
+#                               PARTICIPATION                                  #
+################################################################################
+
+# Insertion d'une participation dans la base de données
+def add_participation():
+    participation_data = request.get_json()
+    player_name = participation_data['playerName']
+    answers = participation_data['answers']
+    score = 0
+
+    if len(answers) < 10:
+        return "Bad request - Incomplete participation", 400
+
+    if len(answers) > 10:
+        return "Bad request - Overcomplete participation", 400
+
+    # Calcul du score en vérifiant les réponses de l'utilisateur
+    for i, answer in enumerate(answers):
+        question = Question.get_question_by_position(i + 1)
+        if question is not None:
+            selected_answer = question.possibleAnswers[answer - 1]
+            if selected_answer['isCorrect']:
+                score += 1
+
+    # Insertion de la participation dans la table "quiz_participations"
+    conn = sqlite3.connect('./quiz-questions.db')
+    cursor = conn.cursor()
+
+    insert_query = "INSERT INTO quiz_participations (player_name, answers, score) VALUES (?, ?, ?)"
+    cursor.execute(insert_query, (player_name, json.dumps(answers), score))
+
+    conn.commit()
+    conn.close()
+
+    # Construction de l'objet JSON à renvoyer en réponse
+    result = {
+        "playerName": player_name,
+        "score": score
+    }
+
+    return result, 200
