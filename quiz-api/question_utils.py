@@ -359,7 +359,7 @@ def add_participation():
     player_name = participation_data['playerName']
     answers = participation_data['answers']
     score = 0
-
+    
     if len(answers) < 10:
         return "Bad request - Incomplete participation", 400
 
