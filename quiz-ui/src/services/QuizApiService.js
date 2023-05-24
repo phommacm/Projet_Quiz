@@ -27,7 +27,34 @@ export default {
         console.error(error);
       });
   },
-  getQuizInfo() {
+  async getQuizInfo() {
     return this.call("get", "quiz-info");
+  },
+  async addQuestion(question) {
+    return this.call("post", "questions", question);
+  },
+  async deleteAllQuestions() {
+    return this.call("delete", "questions/all");
+  },
+  async deleteQuestionById(questionId) {
+    return this.call("delete", `questions/${questionId}`);
+  },
+  async deleteAllParticipations() {
+    return this.call("delete", "participations/all");
+  },
+  async getQuestionById(questionId) {
+    return this.call("get", `questions/${questionId}`);
+  },
+  async getQuestionByPosition(position) {
+    return this.call("get", `questions?position=${position}`);
+  },
+  async updateQuestion(questionId, question) {
+    return this.call("put", `questions/${questionId}`, question);
+  },
+  async addParticipation(participationData) {
+    return this.call("post", "participations", participationData);
+  },
+  async rebuildDatabase() {
+    return this.call("post", "rebuild-db");
   },
 };
