@@ -26,7 +26,7 @@ export default {
       currentQuestion: null,
       currentQuestionPosition: 1,
       selectedAnswers: [],
-      selectedCorrectAnswers: [],
+      questions: [],
     };
   },
   async created() {
@@ -45,16 +45,12 @@ export default {
       try {
         const { data } = await QuizApiService.getQuestionByPosition(position);
         this.currentQuestion = data;
+        this.questions.push(data);
       } catch (error) {
         console.error(error);
       }
     },
     async answerClickedHandler(answerIndex) {
-      const selectedCorrectAnswer = this.currentQuestion.possibleAnswers[answerIndex];
-      if (selectedCorrectAnswer.isCorrect) {
-        this.selectedCorrectAnswers.push(answerIndex);
-      }
-
       this.selectedAnswers.push(answerIndex + 1);
 
       if (this.currentQuestionPosition < this.totalNumberOfQuestions) {
@@ -67,15 +63,13 @@ export default {
     async endQuiz() {
       try {
         const playerName = ParticipationStorageService.getPlayerName();
-        const participationScore = this.selectedCorrectAnswers.map((answerIndex) => {
-          const selectedCorrectAnswer = this.currentQuestion.possibleAnswers[answerIndex];
-          return selectedCorrectAnswer.isCorrect ? 1 : 0;
+        const participationScore = this.selectedAnswers.map((answerIndex, i) => {
+          const selectedAnswer = this.questions[i].possibleAnswers[answerIndex - 1];
+          return selectedAnswer.isCorrect ? 1 : 0;
         });
 
         const finalScore = participationScore.reduce((a, b) => a + b, 0);
         ParticipationStorageService.saveParticipationScore(finalScore);
-
-        console.log("Contenu de answers :", this.selectedCorrectAnswers.slice());
 
         await QuizApiService.addParticipation({
           playerName: playerName,
@@ -90,7 +84,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
   .content-wrapper {
